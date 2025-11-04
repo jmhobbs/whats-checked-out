@@ -79,7 +79,7 @@ func main() {
 	}
 
 	for id, account := range accounts {
-		fmt.Printf("\n=== %s [%s] ==============\n\n", biblionix.Deobfuscate(account.Name.Printable), id)
+		fmt.Printf("\n=== %s [%s] ==============\n\n", account.Name.Printable, id)
 
 		if len(account.Item) == 0 {
 			fmt.Println("Nothing Checked Out")

@@ -1,10 +1,26 @@
-package biblionix
+package biblionix_test
 
-import "testing"
+import (
+	"net/http"
+	"testing"
 
-func Test_Deobfuscate(t *testing.T) {
-	deobfuscated := Deobfuscate("Real Ja­pane­se ­cook­ing")
-	if deobfuscated != "Real Japanese cooking" {
-		t.Errorf("expected 'Real Japanese cooking', got %q", deobfuscated)
-	}
+	"github.com/jmhobbs/whats-checked-out/biblionix"
+	mockHttp "github.com/jmhobbs/whats-checked-out/mocks/http"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func mockedClient(t *testing.T) (*mockHttp.MockRoundTripper, *biblionix.Client) {
+	rt := mockHttp.NewMockRoundTripper(t)
+	httpClient := &http.Client{Transport: rt}
+	client := biblionix.New("mydomain", biblionix.WithHTTPClient(httpClient))
+	return rt, client
+}
+
+func Test_Client_URL(t *testing.T) {
+	assert.Equal(
+		t,
+		"https://mydomain.biblionix.com/test/path",
+		biblionix.New("mydomain").URL("/test/path"),
+	)
 }

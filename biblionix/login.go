@@ -13,7 +13,7 @@ type LoginResponse struct {
 }
 
 func (c *Client) Login(account, password string) (string, error) {
-	resp, err := http.PostForm(c.URL("/catalog/ajax_backend/login.xml.pl"), url.Values{
+	resp, err := c.httpClient().PostForm(c.URL("/catalog/ajax_backend/login.xml.pl"), url.Values{
 		"username": {account},
 		"password": {password},
 	})
@@ -25,7 +25,7 @@ func (c *Client) Login(account, password string) (string, error) {
 		return "", fmt.Errorf("login failed: %s", resp.Status)
 	}
 
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var login LoginResponse
 	err = xml.NewDecoder(resp.Body).Decode(&login)

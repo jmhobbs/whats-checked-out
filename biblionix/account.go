@@ -141,7 +141,7 @@ type AccountResponse struct {
 		Overdue         string `xml:"overdue,attr"`
 		Biblio          string `xml:"biblio,attr"`
 	} `xml:"item"`
-	Reserve struct {
+	Reserve []struct {
 		Text                     string `xml:",chardata"`
 		ID                       string `xml:"id,attr"`
 		VersacatReserve          string `xml:"versacat_reserve,attr"`
@@ -166,7 +166,7 @@ type AccountResponse struct {
 }
 
 func (c *Client) Account(session string) (*AccountResponse, error) {
-	resp, err := http.PostForm(c.URL("/catalog/ajax_backend/account.xml.pl"), url.Values{
+	resp, err := c.httpClient().PostForm(c.URL("/catalog/ajax_backend/account.xml.pl"), url.Values{
 		"session": {session},
 	})
 	if err != nil {
@@ -177,7 +177,7 @@ func (c *Client) Account(session string) (*AccountResponse, error) {
 		return nil, fmt.Errorf("get account failed: %s", resp.Status)
 	}
 
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var account AccountResponse
 	err = xml.NewDecoder(resp.Body).Decode(&account)
@@ -187,8 +187,8 @@ func (c *Client) Account(session string) (*AccountResponse, error) {
 
 	// clean up obfuscated strings
 	for i, item := range account.Item {
-		account.Item[i].Title = Deobfuscate(item.Title)
-		account.Item[i].Author = Deobfuscate(item.Author)
+		account.Item[i].Title = deobfuscate(item.Title)
+		account.Item[i].Author = deobfuscate(item.Author)
 	}
 
 	return &account, nil
