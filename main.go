@@ -93,10 +93,17 @@ func main() {
 			maxAuthor = max(len(item.Author), maxAuthor)
 		}
 
-		fmtString := fmt.Sprintf("%%-%ds | %%-%ds | %%s\n", maxTitle, maxAuthor)
+		fmtString := fmt.Sprintf("%%-%ds | %%-%ds | %%s | %%s\n", maxTitle, maxAuthor)
 
 		for _, item := range account.Item {
-			fmt.Printf(fmtString, item.Title, item.Author, item.Due)
+			renewable := "❓"
+			switch item.Renewable {
+			case "1":
+				renewable = "✅"
+			case "0":
+				renewable = "❌"
+			}
+			fmt.Printf(fmtString, item.Title, item.Author, item.Due, renewable)
 		}
 	}
 
